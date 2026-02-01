@@ -15,6 +15,14 @@ const app = initializeApp(firebaseConfig)
 export const auth = getAuth(app)
 export const db = getFirestore(app)
 
+// Developer helper: log exposed Vite env vars in development for quick troubleshooting
+if (import.meta.env.MODE === 'development'){
+  console.debug('FIREBASE CONFIG', {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  })
+}
 export function signInAnonymous() {
   return signInAnonymously(auth)
 }
