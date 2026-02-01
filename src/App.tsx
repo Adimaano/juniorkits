@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { onAuthStateChanged, signOut as fbSignOut } from './firebase'
+import { auth, onAuthStateChanged, signOut as fbSignOut } from './firebase'
 import { listenInventory, listenJobs, addInventory, updateInventory, deleteInventory, addJob, updateJob, deleteJob } from './remoteStorage'
 import Login from './components/Login'
 import Header from './components/Header'
@@ -9,24 +9,24 @@ import Inventory from './components/Inventory/Inventory'
 import { Equipment, Job } from './types'
 
 export default function App() {
-  const [auth, setAuth] = useState<boolean>(false)
+  const [isAuthed, setIsAuthed] = useState<boolean>(false)
   const [tab, setTab] = useState<'jobs'|'inventory'>('jobs')
   const [inventory, setInventory] = useState<Equipment[]>([])
   const [jobs, setJobs] = useState<Job[]>([])
 
   useEffect(()=>{
-    const unsub = onAuthStateChanged((user)=>{
-      setAuth(Boolean(user))
+    const unsub = onAuthStateChanged(auth, (user)=>{
+      setIsAuthed(Boolean(user))
     })
     return unsub
   },[])
 
   useEffect(()=>{
-    if (!auth) return
+    if (!isAuthed) return
     const unsubInv = listenInventory(setInventory)
     const unsubJobs = listenJobs(setJobs)
     return ()=>{ unsubInv(); unsubJobs() }
-  },[auth])
+  },[isAuthed])
 
   async function handleLogout(){
     try{ await fbSignOut() }catch(e){ console.warn(e) }

@@ -1,6 +1,7 @@
-import { collection, query, orderBy, onSnapshot, addDoc, setDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore'
+import { collection, query, orderBy, onSnapshot, addDoc, setDoc, doc, updateDoc, deleteDoc, getDocs } from 'firebase/firestore'
 import { db } from './firebase'
 import { Equipment, Job } from './types'
+import { loadInventory, loadJobs } from './storage'
 
 // Authentication related functions are exported from firebase.ts directly
 
@@ -48,4 +49,25 @@ export async function updateJob(job: Job) {
 }
 export async function deleteJob(id: string) {
   await deleteDoc(doc(db, 'jobs', id))
+}
+
+export async function migrateLocalData(){
+  // only migrate if remote collections are empty
+  const invSnap = await getDocs(collection(db, 'inventory'))
+  const jobsSnap = await getDocs(collection(db, 'jobs'))
+  if (!invSnap.empty || !jobsSnap.empty) {
+    throw new Error('Remote collections are not empty - aborting migration')
+  }
+  const localInv = loadInventory()
+  const localJobs = loadJobs()
+  for(const i of localInv) {
+    const iCopy = { ...i }
+    if (iCopy.id) await setDoc(doc(db,'inventory',iCopy.id), iCopy)
+    else await addDoc(collection(db,'inventory'), iCopy)
+  }
+  for(const j of localJobs) {
+    const jCopy = { ...j }
+    if (jCopy.id) await setDoc(doc(db,'jobs',jCopy.id), jCopy)
+    else await addDoc(collection(db,'jobs'), jCopy)
+  }
 }

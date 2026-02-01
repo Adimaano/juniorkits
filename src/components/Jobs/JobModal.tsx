@@ -3,7 +3,7 @@ import Modal from '../ui/Modal'
 import { Job, Equipment } from '../../types'
 import { v4 as uuid } from 'uuid'
 
-export default function JobModal({ job:initial, onClose, onSave, onDelete, inventory, jobs }:{ job:Job, onClose:()=>void, onSave:(j:Job)=>void, onDelete:(id:string)=>void, inventory:Equipment[], jobs:Job[] }){
+export default function JobModal({ job:initial, onClose, onSave, onDelete, inventory, jobs }:{ job:Job, onClose:()=>void, onSave:(j:Job)=>Promise<void> | void, onDelete:(id:string)=>Promise<void> | void, inventory:Equipment[], jobs:Job[] }){
   const [job, setJob] = useState<Job>(initial)
 
   // compute availability: for a given equipment, how many are reserved on this date (excluding current job)

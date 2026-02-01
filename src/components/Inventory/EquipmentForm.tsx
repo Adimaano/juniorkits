@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Equipment } from '../../types'
 
-export default function EquipmentForm({ initial, onSave, onCancel }:{ initial?:Equipment, onSave:(e:Equipment)=>void, onCancel?:()=>void }){
+export default function EquipmentForm({ initial, onSave, onCancel }:{ initial?:Equipment, onSave:(e:Equipment)=>Promise<void> | void, onCancel?:()=>void }){
   const [state, setState] = useState<Equipment>(initial || { id: '', shortName:'', fullName:'', value:0, defects:[], howMany:1, buyDate:'', notes:'', status:'NEW' })
 
   function submit(e?:React.FormEvent){
